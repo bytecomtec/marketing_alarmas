@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control de Margen e Infraestructura - Bytecomtec</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* ==========================================================================
+           Variables de Paleta de Color Corporativa
+           ========================================================================== */
+        :root {
+            --primary-color: #003366;       /* Azul Corporativo */
+            --accent-color: #ff6600;        /* Naranja Técnico */
+            --bg-light: #f8fafc;            /* Fondo general sutil */
+            --text-main: #1e293b;           /* Texto principal */
+            --border-color: #e2e8f0;        /* Separadores */
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column; min-height: 100vh;
+        }
+
+        .navbar {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 15px 30px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex-wrap: wrap; gap: 15px;
+        }
+
+        .navbar h1 { margin: 0; font-size: 1.3rem; font-weight: 600; }
+
+        .config-panel {
+            display: flex; align-items: center; gap: 15px; flex-wrap: wrap;
+        }
+
+        .currency-controller {
+            display: flex; align-items: center; background: rgba(255, 255, 255, 0.1);
+            padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2);
+            gap: 10px; font-size: 0.9rem;
+        }
+        .currency-controller input, .currency-controller select {
+            padding: 4px 6px; border-radius: 4px; border: none;
+            font-weight: bold; text-align: center; color: var(--primary-color); font-size: 0.95rem;
+            outline: none;
+        }
+
+        .main-layout { display: flex; flex: 1; max-width: 1440px; width: 100%; margin: 0 auto; }
+
+        @media (max-width: 900px) { .main-layout { flex-direction: column; } }
+
+        .sidebar { 
+            width: 300px; background-color: var(--white); border-right: 1px solid var(--border-color); 
+            padding: 20px 10px; box-sizing: border-box; max-height: calc(100vh - 70px); overflow-y: auto;
+        }
+        @media (max-width: 900px) { .sidebar { width: 100%; max-height: none; border-right: none; border-bottom: 1px solid var(--border-color); } }
+
+        .sidebar-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: #64748b; padding-left: 10px; margin-bottom: 15px; letter-spacing: 0.5px; }
+        .category-menu-list { list-style: none; padding: 0; margin: 0; }
+        .category-menu-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 11px 14px; color: var(--text-main); text-decoration: none;
+            font-size: 0.9rem; font-weight: 500; border-radius: 6px; margin-bottom: 4px; cursor: pointer; transition: all 0.2s;
+        }
+        .category-menu-item:hover { background-color: #f1f5f9; color: var(--primary-color); }
+        .category-menu-item.active { background-color: #e0f2fe; color: #0369a1; font-weight: 600; border-left: 4px solid #0284c7; }
+        .category-menu-item .qty-badge { background-color: #f1f5f9; color: #64748b; font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+        .category-menu-item.active .qty-badge { background-color: #bae6fd; color: #0369a1; }
+
+        .content-showcase { flex: 1; padding: 30px; box-sizing: border-box; }
+        .showcase-header { margin-bottom: 20px; }
+        .showcase-header h2 { margin: 0 0 8px 0; color: var(--primary-color); font-size: 1.7rem; }
+        .showcase-header p { margin: 0; color: #64748b; font-size: 0.95rem; }
+
+        .search-container {
+            margin-bottom: 25px;
+            background-color: var(--white);
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+        .search-box-wrapper { position: relative; max-width: 500px; }
+        .search-box-wrapper input {
+            width: 100%; padding: 10px 12px 10px 38px; border-radius: 4px;
+            border: 1px solid #cbd5e1; font-size: 0.9rem; color: var(--text-main);
+            box-sizing: border-box; outline: none; transition: border-color 0.2s;
+        }
+        .search-box-wrapper input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(0, 51, 102, 0.1); }
+        .search-box-wrapper i { position: absolute; left: 14px; top: 13px; color: #94a3b8; font-size: 0.95rem; }
+
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(430px, 1fr)); gap: 25px; }
+        @media (max-width: 500px) { .products-grid { grid-template-columns: 1fr; } }
+
+        .product-card {
+            background-color: var(--white); border: 1px solid var(--border-color); border-radius: 8px;
+            padding: 20px; display: flex; flex-direction: column; justify-content: space-between;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .product-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
+        .product-body { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
+        .product-main-info { display: flex; gap: 20px; align-items: flex-start; }
+
+        .product-img-box {
+            width: 120px; height: 120px; flex-shrink: 0; border: 1px solid #f1f5f9; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center; background-color: #ffffff; overflow: hidden;
+        }
+        .product-img-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        .product-details { flex-grow: 1; }
+        .product-model { color: #003399; font-weight: 700; font-size: 1.25rem; margin-bottom: 4px; }
+        .product-title-specs { font-size: 0.95rem; color: var(--text-main); font-weight: 700; line-height: 1.4; margin: 0 0 8px 0; }
+        
+        .product-price-list { font-size: 0.95rem; color: #64748b; margin: 8px 0; font-weight: 500; }
+        .product-price-list .final-price { color: #d32f2f; font-weight: bold; font-size: 1.4rem; display: block; margin-bottom: 2px; }
+        .usd-reference { font-size: 0.8rem; color: #94a3b8; display: block; }
+
+        .margin-badge {
+            display: inline-block; background-color: #f0fdf4; color: #15803d; 
+            padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; 
+            margin-top: 6px; border: 1px solid #bbf7d0; width: fit-content;
+        }
+
+        .product-features-list { margin: 10px 0 0 0; padding-left: 20px; list-style-type: none; }
+        .product-features-list li { font-size: 0.9rem; color: #475569; line-height: 1.6; margin-bottom: 6px; position: relative; }
+        .product-features-list li::before { content: "✓"; position: absolute; left: -18px; color: #10b981; font-weight: bold; }
+
+        .product-footer { border-top: 1px solid #f1f5f9; padding-top: 15px; }
+        .product-actions { display: flex; gap: 10px; }
+        
+        .btn-prepare {
+            background-color: var(--primary-color); color: var(--white); border: none; border-radius: 4px;
+            padding: 11px 14px; font-size: 0.9rem; font-weight: 600; cursor: pointer; flex: 2;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-prepare:hover { background-color: #002244; }
+
+        .btn-video {
+            background-color: transparent; color: var(--accent-color); border: 1px solid var(--accent-color);
+            border-radius: 4px; padding: 11px 14px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+            flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none;
+            transition: all 0.2s; box-sizing: border-box;
+        }
+        .btn-video:hover { background-color: var(--accent-color); color: var(--white); }
+
+        /* ==========================================================================
+           MODAL DE PREVISUALIZACIÓN DE IMAGEN VERTICAL EN SMARTPHONES
+           ========================================================================== */
+        .custom-modal {
+            display: none; position: fixed; z-index: 9999; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(15, 23, 42, 0.95); align-items: center; justify-content: center;
+        }
+        .modal-content-wrapper {
+            position: relative; background-color: #f1f5f9; padding: 15px; border-radius: 8px;
+            max-width: 450px; width: 92%; max-height: 95vh; display: flex; flex-direction: column; 
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); box-sizing: border-box;
+        }
+        .image-scroll-container {
+            flex: 1; overflow-y: auto; margin-bottom: 12px; border-radius: 4px;
+            display: flex; align-items: flex-start; justify-content: center; background-color: #cbd5e1;
+        }
+        .output-composite-img { width: 100%; height: auto; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: block; }
+        
+        .modal-close { position: absolute; top: -40px; right: 0; color: #ffffff; font-size: 2.2rem; cursor: pointer; background: none; border: none; }
+        
+        @media (max-width: 600px) {
+            .modal-close { top: 5px; right: 10px; color: #1e293b; background: rgba(255,255,255,0.9); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; z-index: 10; }
+        }
+
+        .btn-copy-clipboard {
+            background-color: #2563eb; color: var(--white); border: none; border-radius: 4px;
+            padding: 14px 20px; font-size: 1rem; font-weight: bold; cursor: pointer; width: 100%;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: background-color 0.2s; flex-shrink: 0;
+        }
+        .btn-copy-clipboard:hover { background-color: #1d4ed8; }
+        .btn-copy-clipboard.success { background-color: #10b981; }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <h1>Bytecomtec - Centro de Control de Margen</h1>
+        
+        <div class="config-panel">
+            <div class="currency-controller">
+                <label for="exchangeRate">Tipo de cambio:</label>
+                <span>$</span>
+                <input type="number" id="exchangeRate" value="17.60" step="0.01" min="1" oninput="updateAllPrices()">
+                <span>MXN</span>
+            </div>
+
+            <div class="currency-controller">
+                <label for="discountSelect">Descuento Público:</label>
+                <select id="discountSelect" onchange="updateAllPrices()">
+                    <option value="0" selected> Precio de Lista Público</option>
+                    <option value="0.05">Aplicar 5% Preferencial</option>
+                    <option value="0.10">Aplicar 10% Especial</option>
+                    <option value="0.20">Aplicar 20% Máximo Autorizado</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <nav class="sidebar">
+            <div class="sidebar-title">Líneas de Negocio</div>
+            <ul class="category-menu-list" id="menuList"></ul>
+        </nav>
+
+        <main class="content-showcase">
+            <div class="showcase-header">
+                <h2 id="categoryTitle">Cargando...</h2>
+                <p id="categoryDesc"></p>
+            </div>
+
+            <div class="search-container">
+                <div class="search-box-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="categorySearchInput" onkeyup="filterActiveCategoryProducts()" placeholder="Buscar en esta categoría...">
+                </div>
+            </div>
+
+            <div class="products-grid" id="productsContainer"></div>
+        </main>
+    </div>
+
+    <div id="imageModal" class="custom-modal" onclick="closeLightbox()">
+        <div class="modal-content-wrapper" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeLightbox()">&times;</button>
+            <div style="font-size: 0.95rem; color:#1e293b; font-weight:700; margin-bottom:8px; flex-shrink:0; text-align: left;">Ficha Técnica de Alta Visibilidad:</div>
+            
+            <div class="image-scroll-container">
+                <img id="modalTargetImg" class="output-composite-img" src="" alt="Ficha Comercial">
+            </div>
+            
+            <button id="btnClipboardAction" class="btn-copy-clipboard" onclick="shareOrCopyCanvas()">
+                🚀 Compartir Ficha por WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <canvas id="processingCanvas" style="display: none;"></canvas>
+
+<script>
+    let currentRate = 17.50;
+    let currentDiscount = 0;
+    let currentCategory = "dvr";
+    let activeProductModel = "";
+
+    const GITHUB_IMG_BASE = "https://bytecomtec.github.io/marketing_videovigilancia/";
+
+    const categoriesList = [
+        { id: "panel", name: "PANEL ALARMA" },
+        { id: "repetidor", name: "Repetidores AXPRO" },
+        { id: "sensores", name: "Sensores y detectores" },
+        { id: "accesorios", name: "Accesorios" },
+        { id: "baterias", name: "Baterías" }
+    ];
+
+    const catalogData = {
+            nvr: {
+                title: "Grabadores de Red (NVR)",
+                desc: "Soluciones autónomas de grabación IP nativa con gestión remota y switches integrados.",
+                products: [
+                    { 
+                        model: "DS-7104NI-K1/W/M(C)", // Cambié el modelo para diferenciarlo del NVR de 4 canales
+                        titleSpecs: "NVR 4 Megapixel / 4 canales IP / 1 Bahía de Disco Duro / 2 Antenas Wi-Fi / Salida de Vídeo Full HD", 
+                        desc: "Grabador IP autónomo provisto de puertos PoE nativos para energizar cámaras de forma directa.",
+                        costUSD: 62.14,
+                        features: ["Codificación H.265+/H.265/H.264+/H.264", "Almacenamiento 1 disco hasta 6 TB", "Throughput entrada 50 Mbps, salida 40 Mbps", "Reproducción sincrónica 4 canales Full HD", "2 antenas Wi-Fi MIMO 2.4 GHz"],
+                        videoURL: "https://bytecomtec.github.io/videos_videovigilancia/videovigilancia.mp4"
+                   },
+                   { 
+                        model: "DS-7604NI-Q1/4P(D)", // Cambié el modelo para diferenciarlo del DVR
+                        titleSpecs: "NVR 8 Megapixel (4K) (Compatible con Cámaras ACUSENSE) / 4 canales IP / 4 Puertos PoE+ / 1 Bahía de Disco Duro / Salida de Vídeo en 4K / 300 Metros PoE Modo Extendido", 
+                        desc: "Grabador de red eficiente diseñado para gestionar cámaras IP de alta definición continua.",
+                        costUSD: 79.25,
+                        features: ["Compresión H.265+/H.265/H.264+/H.264", "4 puertos PoE+ con 50W total", "Soporta disco duro de hasta 8TB", "Acceso remoto desde dispositivos móviles", "Salida de video 4K en HDMI"],
+                        videoURL: ""     
+                    },
+                    { 
+                        model: "DS-7604NXI-K1/4P(E)", // Cambié el modelo para diferenciarlo del NVR de 4 canales
+                        titleSpecs: "[Acusearch] NVR 12 Megapíxel (4K) / 4 canales IP / 4 Puertos PoE+ / Reconocimiento Facial / AcuSense (Evita Falsas Alarmas) / 1 Bahías de Disco Duro / HDMI en 4K / 300 Metros PoE Modo Extendido", 
+                        desc: "Grabador IP autónomo provisto de puertos PoE nativos para energizar cámaras de forma directa.",
+                        costUSD: 117.40,
+                        features: ["Compresión H.265+/H.265/H.264+/H.264 para eficiencia", "4 puertos PoE+ con 50W potencia total", "Acceso remoto vía Hik-Connect y aplicaciones móviles", "Reconocimiento facial hasta 50,000 rostros en 4 canales", "Modo PoE extendido hasta 300 metros de distancia"],
+                        videoURL: ""       
+                    },
+                    { 
+                        model: "CS-X5S/8W", // Cambié el modelo para diferenciarlo del DVR
+                        titleSpecs: "NVR Inalámbrico (WiFi) de 8 Canales IP / Admite Cámaras hasta 5 Megapixel (3K) / Salidas HDMI y VGA / H.265 / Almacenamiento Expandible hasta 8 TB", 
+                        desc: "Grabador de red eficiente diseñado para gestionar cámaras IP de alta definición continua.",
+                        costUSD: 46.55,
+                        features: ["Almacenamiento expandible hasta 8 TB", "Soporte para cámaras de hasta 5 MP (3K)", "Doble salida de video HDMI y VGA", "Conexión inalámbrica WiFi para 8 canales", "Diseño resistente para entornos exigentes"],
+                        videoURL: ""      
+                    },
+                    { 
+                        model: "DS-7608NI-Q1/8P(D)", // Cambié el modelo para diferenciarlo del NVR de 4 canales
+                        titleSpecs: "NVR 8 Megapixel (4K) (Compatible con Cámaras ACUSENSE) / 8 canales IP / 8 Puertos PoE+ / 1 Bahía de Disco Duro / Salida de Vídeo en 4K / 300 Metros PoE Modo Extendido", 
+                        desc: "Grabador IP autónomo provisto de puertos PoE nativos para energizar cámaras de forma directa.",
+                        costUSD: 138.24,
+                        features: ["Compresión H.265+/H.265 con reducción del 50% en ancho de banda", "8 puertos PoE+ con 75W total y modo extendido 300m", "Soporta disco duro hasta 8TB con tecnología S.M.A.R.T", "Resolución 4K en 8 canales a 30fps", "Detección AcuSense en 8 canales para humanos y vehículos", "Salida simultánea HDMI y VGA en múltiples resoluciones"],
+                        videoURL: ""     
+                    },
+                    { 
+                        model: "DS-7608NXI-K1(E)", // Cambié el modelo para diferenciarlo del DVR
+                        titleSpecs: "[Acusearch] NVR 12 Megapíxel (4K) / 8 canales IP / AcuSense (Evita Falsas Alarmas) / Reconocimiento Facial / 1 Bahía de Disco Duro / HDMI en 4K / Sin Puertos PoE", 
+                        desc: "Grabador de red eficiente diseñado para gestionar cámaras IP de alta definición continua.",
+                        costUSD: 93.06,
+                        features: ["Compresión H.265+ para mayor eficiencia", "Tecnología ANR para grabación local en desconexión", "Reconocimiento facial hasta 20,000 rostros", "Soporta 1 HDD de hasta 16TB", "Detección AcuSense: humano y vehículo", "Salida HDMI 4K/UHD"],
+                        videoURL: ""      
+                    },
+                    { 
+                        model: "DS-7616NXI-K1(E)", // Cambié el modelo para diferenciarlo del NVR de 4 canales
+                        titleSpecs: "[Acusearch] NVR 12 Megapixel (4K) / 16 canales IP / AcuSense (Evita Falsas Alarmas) / Reconocimiento Facial / 1 Bahía de Disco Duro / HDMI en 4K / Sin Puertos PoE+", 
+                        desc: "Grabador IP autónomo provisto de puertos PoE nativos para energizar cámaras de forma directa.",
+                        costUSD: 133.48,
+                        features: ["Compresión H.265+/H.265 para reducción de ancho de banda", "Reconocimiento facial con base de datos de 50,000 rostros", "Soporte para resolución 12MP (4K) en 16 canales", "Detección de movimiento multizona con filtro de falsas alarmas", "1 puerto HDMI 4K y 1 puerto VGA simultáneos"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "DS-7616NXI-K2(E)", // Cambié el modelo para diferenciarlo del DVR
+                        titleSpecs: "[Acusearch] NVR 12 Megapixel (4K) / 16 canales IP / AcuSense (Evita Falsas Alarmas) / Reconocimiento Facial / 2 Bahías de Disco Duro / HDMI en 4K / Sin Puertos PoE+ / Alarmas I/O", 
+                        desc: "Grabador de red eficiente diseñado para gestionar cámaras IP de alta definición continua.",
+                        costUSD: 148.63,
+                        features: ["Compresión H.265+ para mayor eficiencia", "Acceso remoto desde dispositivos móviles", "Soporta hasta 2 discos duros", "Reconocimiento facial para 20,000 rostros", "Salida HDMI 4K para alta resolución"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "DS-7616NXI-K2/16P(E)", // Cambié el modelo para diferenciarlo del DVR
+                        titleSpecs: "[AcuSearch] NVR 12 Megapixel (4K) / 16 Canales IP / 16 Puertos PoE+ (10/100 Mbps) / Reconocimiento Facial / AcuSense / 2 Bahías para HDD de 16 TB / HDMI 4K / Alarmas I/O", 
+                        desc: "Grabador de red eficiente diseñado para gestionar cámaras IP de alta definición continua.",
+                        costUSD: 309.36,
+                        features: ["Compresión H.265+/H.265 con eficiencia energética", "16 puertos PoE+ 802.3 af/at con 200 W", "Soporta 2 HDD de hasta 16 TB", "Reconocimiento facial hasta 50,000 rostros", "Resolución 4K (3840x2160) a 30 Hz", "Detección inteligente: facial, ANPR y áreas restringidas"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "DS-7632NXI-K2(E)", // Cambié el modelo para diferenciarlo del NVR de 4 canales
+                        titleSpecs: "[AcuSearch] NVR 12 Megapixel (4K) / 32 canales IP / AcuSense (Evita Falsas Alarmas) / Reconocimiento Facial / 2 Bahías de Disco Duro / HDMI en 4K / Sin Puertos PoE+", 
+                        desc: "Grabador IP autónomo provisto de puertos PoE nativos para energizar cámaras de forma directa.",
+                        costUSD: 225.65,
+                        features: ["Compresión H.265+/H.264+ para eficiencia", "2 bahías HDD soportan hasta 16TB", "AcuSense filtra falsas alarmas con IA", "Salida HDMI 4K (8MP/12MP)", "Compatible con gabinete metálico GABVID2R3"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "DS-7632NXI-K2/16P(E)", // Cambié el modelo para diferenciarlo del DVR
+                        titleSpecs: "[AcuSearch] NVR 12 Megapixel (4K) / 32 canales IP / 16 Puertos PoE+ / Recocimiento Facial / AcuSense (Evita Falsas Alarmas) / 2 Bahías de Disco Duro / HDMI en 4K / Alarmas I/O / 300 Metros PoE Modo Extendido", 
+                        desc: "Grabador de red eficiente diseñado para gestionar cámaras IP de alta definición continua.",
+                        costUSD: 458.48,
+                        features: ["Compresión de video H.265+/H.265/H.264+/H.264", "16 puertos PoE+ 802.3 af/at (200W total)", "Tecnología AcuSense para detección precisa (humano/vehículo)", "Soporta 2 HDD's de hasta 16 TB (no incluido)", "Compatible con gabinete metálico GABVID2R3"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "DS-9664NI-M8", // Cambié el modelo para diferenciarlo del NVR de 4 canales
+                        titleSpecs: "[Doble Poder de Decodificación] NVR 32 Megapixel (8K) / 64 Canales IP / AcuSense / ANPR / Conteo de Personas / Heat Map / 8 Bahías de Disco Duro / Soporta RAID con Hot Swap / 2 HDMI en 8K / Soporta POS / Alarmas I/O / Smart Search", 
+                        desc: "Grabador IP autónomo provisto de puertos PoE nativos para energizar cámaras de forma directa.",
+                        costUSD: 2069.56,
+                        features: ["Doble decodificación 8K y 64 canales IP", "Tecnología AcuSense para detección precisa de humanos y vehículos", "Soporta RAID 0,1,5,6,10 con hot swap", "Doble salida HDMI 8K y VGA simultánea", "8 bahías para discos duros de hasta 16TB"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "DS-96128NI-M16/R", // Cambié el modelo para diferenciarlo del DVR
+                        titleSpecs: "[Doble Poder de Decodificación] NVR 32 Megapixel (8K) / 128 Canales IP / AcuSense / ANPR / Conteo de Personas / 16 Bahías de Disco Duro / 2 Tarjetas de Red / Soporta RAID con Hot Swap / 2 HDMI en 8K / POS / Alarmas I/O / Smart Search", 
+                        desc: "Grabador de red eficiente diseñado para gestionar cámaras IP de alta definición continua.",
+                        costUSD: 4467.45,
+                        features: ["Compresión H.265+/H.265/H.264+/H.264 eficiente", "Hot swap con soporte RAID 0,1,5,6,10", "Acceso remoto multiplataforma con Hik-Connect", "Soporte ONVIF para múltiples marcas de cámaras", "Soporta 16 HDDs de hasta 16 TB", "Doble salida HDMI 8K/4K para visualización"],
+                        videoURL: ""   
+                    }
+                ]
+            },
+
+            switch_poe: {
+                title: "Switches POE",
+                desc: "Catálogo completo de soluciones Switches POE, NO-POE.",
+                products: [
+                    { 
+                        model: "DS-3E1505P-EI/M", 
+                        titleSpecs: "Switch Gigabit PoE+ / Monitoreable / 4 Puertos 1000 Mbps PoE+ / 1 Puerto 1000 Mbps Uplink / Configuración Nube Hik-PartnerPro / Modo Extendido hasta 300 Metros / 45 Watts", 
+                        desc: "Grabador compacto ideal para el resguardo eficiente de perímetros pequeños con optimización extrema de almacenamiento.",
+                        costUSD: 30.00,
+                        features: ["Switch 4 puertos PoE+ 1000 Mbps", "Puerto Uplink 1000 Mbps dedicado", "Monitoreo en tiempo real de tráfico", "Modo Extendido hasta 300 metros", "45W PoE+ con administración inteligente", "Configuración vía Hik-PartnerPro en la nube"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "TL-SG1005P", 
+                        titleSpecs: "Switch Escritorio No Administrable de 5 puertos 10/100/1000 Mbps / Con 4 puertos PoE 802.3af/at de hasta 65 W / PoE Extendido hasta 250 metros", 
+                        desc: "Grabador balanceado analítico para entornos residenciales y pequeños comercios que exigen nitidez estructural superior.",
+                        costUSD: 29.59,
+                        features: ["Switch no administrable de 5 puertos Gigabit", "4 puertos PoE 802.3af/at con presupuesto 65W", "PoE extendido hasta 250 metros en puertos 1-2", "Diseño compacto de 99.8 x 98 x 25 mm", "Rendimiento de 10 Gbps y 7.44 Mpps de reenvío", "Soporta Jumbo Frames de hasta 16 KB"],
+                        videoURL: ""   
+                    },
+
+
+
+
+
+                    { 
+                        model: "WI-PS518G", 
+                        titleSpecs: "Switch PoE (802.3af/at/bt) / No administrable de largo alcance / Hasta 250m / 16 x 10/100Mbps (PoE) + 2 x 100/1000Mbps + 1 x SFP / 200 W", 
+                        desc: "Solución analítica avanzada basada en algoritmos profundos para mitigar las falsas alarmas de entorno.",
+                        costUSD: 116.73,
+                        features: ["Extensión de red patentada hasta 250 metros", "Detección y reinicio automático de cámaras IP", "Presupuesto PoE de 200W para múltiples dispositivos", "Protección de 6kV contra rayos y ESD", "Plug and Play sin configuración requerida", "16 puertos PoE con soporte 802.3af/at/bt"],
+                        videoURL: ""   
+                    }
+                ]
+            },
+
+
+            energia: {
+                title: "Fuentes de energía",
+                desc: "Equipos de alimentación CCTV",
+                products: [
+                    { 
+                        model: "KPL-040F-VI", // Cambié el modelo para diferenciarlo del DVR de 4 canales
+                        titleSpecs: "Fuente de Poder Regulada 12 Vcc / 3.3 A / Conector DIN 4 Pin / Compatible con DVR&acute;s EV4000, EV5000", 
+                        desc: "Cámaras PT y PTZ Análogas e IP.",
+                        costUSD: 13.47,
+                        features: ["Entrada 100-240V~ 50/60Hz para compatibilidad global", "Salida 12 VCC con regulación precisal", "Amperaje máximo de salida 3.33 A","Conector DIN de 4 pines estándar", "Diseño compacto para fácil instalación", "Compatible con DVRs EV4000 y EV5000"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "P12DC3A", // Cambié el modelo para diferenciarlo del DVR de 4 canales
+                        titleSpecs: "Fuente de Poder 12 V / 3 Amp / Regulados.", 
+                        desc: "Cámaras PT y PTZ Análogas e IP.",
+                        costUSD: 8.92,
+                        features: ["Voltaje de entrada universal 100-240 VCA", "Salida 12 VCC regulado con precisión", "Corriente de salida 3 Amperios continuos","Protección contra sobretensiones y anti-interferencia", "Operación en rango ampliado -20°C a 45°C", "Diseño compacto 88 x 50 x 35 mm"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "PL-DC-1000", // Cambié el modelo para diferenciarlo del DVR de 4 canales
+                        titleSpecs: "Fuente de poder de 12 Vcc @ 1 Amp Regulado / Uso en Interior / Múltiples Usos / Con cable de 95 cm.", 
+                        desc: "Cámaras PT y PTZ Análogas e IP.",
+                        costUSD: 2.64,
+                        features: ["Voltaje entrada 100-240 VCA, salida 12 VCC ±5%", "Corriente salida 1 A, alta eficiencia energética", "Protección sobretensiones y anti-interferencia","Diseño compacto 70x65x24 mm, fácil instalación", "Operación segura 0°C a 40°C", "Uso interior, múltiples aplicaciones"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "PL12DC2AW", // Cambié el modelo para diferenciarlo del DVR de 4 canales
+                        titleSpecs: "Fuente de Poder para Exterior / 12 Vcc / 2 Amp / 1 Salida / Voltaje de Entrada de 100 - 240 VCA.", 
+                        desc: "Cámaras PT y PTZ Análogas e IP.",
+                        costUSD: 6.18,
+                        features: ["Voltaje entrada 100-240 VCA adaptable global", "Salida regulada 12 VCC @ 2A", "Eficiencia energética optimizada para seguridad electrónica","Protección sobretensiones y anti-interferencia EMI/RFI", "Diseño compacto 131 x 86 x 42.5 mm", "Certificaciones internacionales de seguridad eléctrica"],
+                        videoURL: ""   
+                    },                    { 
+                        model: "PLK12DC6CH", // Cambié el modelo para diferenciarlo del DVR de 4 canales
+                        titleSpecs: "Fuente de Poder de 6 Salidas tipo Jack Macho de 12 Vcc / 6 Amper.", 
+                        desc: "Cámaras PT y PTZ Análogas e IP.",
+                        costUSD: 11.36,
+                        features: ["Voltaje de entrada 100-240 VCA adaptable globalmente", "Alta eficiencia superior al 85% consumo optimizado", "Filtro EMI integrado para reducir interferencias","Protección contra sobretensiones y descargas eléctricas", "Salida 12 VCC con 6 canales hasta 6 A", "Diseño compacto 117x62x34.2 mm para fácil instalación"],
+                        videoURL: ""   
+                    },                    
+                    { 
+                        model: "PSD1202D", // Cambié el modelo para diferenciarlo del DVR
+                        titleSpecs: "Fuente de Poder de 12 Vcc Regulada / 2 Amp / Voltaje de Entrada de 100 - 240 VCA / Longitud del cable 96 cms..",
+                        costUSD: 3.60,
+                        features: ["Voltaje de entrada universal 100-240 VCA", "Salida estable 12 VCC regulada a 2 A", "Protección contra sobretensiones y anti-interferencias EMI/RFI", "Diseño compacto 71.4 x 45.3 x 37.7 mm","Operación en rango amplio -20°C a 45°C", "Cable de 96 cm para fácil instalación"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "CP425SLG", // Cambié el modelo para diferenciarlo del DVR de 4 canales
+                        titleSpecs: "UPS de 425 VA/255 W, Topología Standby, Entrada 120 Vca NEMA 5-15P, Tipo Gabinete Compacto, Con 8 Tomas NEMA 5-15R.", 
+                        desc: "Cámaras PT y PTZ Análogas e IP.",
+                        costUSD: 67.85,
+                        features: ["Respaldo 7 minutos con media carga (127.5W)", "Tecnología GreenPower UPS™ para ahorro energético", "Puerto USB para administración por software PowerPanel®","Protección contra sobretensiones y descargas eléctricas", "Protección contra sobretensiones y picos de voltaje", "8 tomas NEMA 5-15R con 4 batería y 4 solo protección", "Indicadores LED de estado y falla de cableado"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "DS-UPS600-X", // Cambié el modelo para diferenciarlo del DVR de 4 canales
+                        titleSpecs: "UPS de 600 VA / 360W / Protección Contra Sobrecarga y Descarga / Entrada y Salida 120 VCA / 6 Tomas NEMA 5-15R (4 con Respaldo y 2 sin Respaldo).", 
+                        desc: "Cámaras PT y PTZ Análogas e IP.",
+                        costUSD: 42.63,
+                        features: ["Capacidad 600 VA / 360 W para respaldo eficiente", "Alta eficiencia superior al 85% consumo optimizado", "6 salidas totales, 4 con respaldo alimenticio","Voltaje de entrada 85-150 V, salida 102-132 V", "Dimensiones compactas de 274 x 95 x 139 mm", "Protección contra sobrecarga y descarga automática"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "EPU600L", // Cambié el modelo para diferenciarlo del DVR de 4 canales
+                        titleSpecs: "UPS de 600VA/360W / Topología Línea Interactiva / Entrada y Salida 120 Vca / Clavija NEMA 5-15P / 4 Tomas NEMA 5-15R/ Sin Protector RJ11 ni RJ45.", 
+                        desc: "Cámaras PT y PTZ Análogas e IP.",
+                        costUSD: 36.76,
+                        features: ["Capacidad de 600 VA / 360 W", "Topología línea interactiva con protección continua", "Regulador automático de voltaje (AVR)","4 salidas NEMA 5-15R con respaldo", "Batería interna 1 x 12V/7Ah, reemplazo 1 pieza LK9.512", "Diseño compacto en formato torre"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "EPU600LCD", // Cambié el modelo para diferenciarlo del DVR de 4 canales
+                        titleSpecs: "UPS de 600VA/360W / Topología Línea Interactiva / Entrada y Salida 120 Vca / Clavija NEMA 5-15P / 4 Tomas NEMA 5-15R.", 
+                        desc: "Cámaras PT y PTZ Análogas e IP.",
+                        costUSD: 46.47,
+                        features: ["Capacidad de 600 VA / 360 W", "Topología interactiva con pantalla LCD", "Regulador automático de voltaje en boost y buck","4 salidas NEMA 5-15R, 1 sin respaldo", "Batería reemplazable 1 x 12V/7Ah, modelo LK9.512", "Tiempo de respaldo ajustado por carga conectada"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "AVRG750LCD", // Cambié el modelo para diferenciarlo del DVR de 4 canales
+                        titleSpecs: "UPS de 750 VA/450 W, Topología Línea Interactiva, Entrada 120 Vca NEMA 5-15P, Tipo Gabinete Compacto, Con 12 Tomas NEMA 5-15R.", 
+                        desc: "Cámaras PT y PTZ Análogas e IP.",
+                        costUSD: 135.81,
+                        features: ["Topología interactiva de línea con AVR integrado", "Compatible con Energy Star para ahorro energético significativo", "Puerto RJ11/RJ45 para protección de datos","Pantalla LCD para monitoreo del estado del UPS", "Batería reemplazable por usuario y puerto USB de carga", "12 tomas NEMA 5-15R con 6 con respaldo de batería"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "OM750ATLCD", // Cambié el modelo para diferenciarlo del DVR de 4 canales
+                        titleSpecs: "UPS de 750 VA/300 W, Topología Línea Interactiva, Entrada 120 Vca NEMA 5-15P, y 6 Salidas NEMA 5-15R, Con Regulador de Voltaje (AVR).", 
+                        desc: "Cámaras PT y PTZ Análogas e IP.",
+                        costUSD: 80.56,
+                        features: ["Topología interactiva de línea para mayor protección", "Salida de onda sinusoidal simulada para equipos sensibles", "Regulación automática de voltaje (AVR) sin uso de batería","6 salidas NEMA 5-15R con protección y 3 con respaldo", "Supresión de picos de 245 Joules", "Pantalla LCD para monitoreo en tiempo real"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "EPU850L", // Cambié el modelo para diferenciarlo del DVR de 4 canales
+                        titleSpecs: "UPS de 850VA/510W / Topología Línea Interactiva / Entrada y Salida 120 Vca / Regulador de Voltaje AVR 80-150 Vca / Clavija NEMA 5-15P / 4 Tomas NEMA 5-15R /Sin RJ11 ni RJ45.", 
+                        desc: "Cámaras PT y PTZ Análogas e IP.",
+                        costUSD: 45.12,
+                        features: ["Capacidad 850 VA / 510 W para pequeñas empresas", "Topología línea interactiva con AVR 80-150 VCA", "Regulador automático de voltaje boost y buck","4 salidas NEMA 5-15R con respaldo energético", "Batería 1 x 12V/8Ah, reemplazo 1 pieza LK9.512", "Diseño compacto sin protección RJ11/RJ45"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "EPU850LCD", // Cambié el modelo para diferenciarlo del DVR de 4 canales
+                        titleSpecs: "UPS de 850VA/510W / Topología Línea Interactiva / Entrada y Salida 120 Vca / Clavija NEMA 5-15P / 6 Tomas NEMA 5-15R / Sin RJ11 ni RJ45.", 
+                        desc: "Cámaras PT y PTZ Análogas e IP.",
+                        costUSD: 52.08,
+                        features: ["Capacidad 850 VA / 510 W para equipos esenciales", "Topología línea interactiva con protección contra sobrevoltajes y picos", "Salida 120 VCA ±5% con regulación automática","6 Tomas NEMA 5-15R, 2 con protección exclusiva", "Batería 1 x 12V/8Ah, reemplazo 1 pieza LK9.512", "Tiempo de respaldo variable según carga: hasta 40 minutos"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "OM900ATLCD", // Cambié el modelo para diferenciarlo del DVR de 4 canales
+                        titleSpecs: "UPS de 900 VA/420 W, Topología Línea Interactiva, Entrada 120 Vca NEMA 5-15P, y 6 Salidas NEMA 5-15R, Con Regulador de Voltaje (AVR).", 
+                        desc: "Cámaras PT y PTZ Análogas e IP.",
+                        costUSD: 102.30,
+                        features: ["Topología interactiva de línea con AVR integrado", "Capacidad de 900 VA / 420 W", "6 salidas NEMA 5-15R con protección integral","Regulación automática de voltaje (AVR) sin batería", "Supresión de picos de 245 Joules", "Pantalla LCD y puerto USB para monitoreo"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "DS-UPS1000-X", // Cambié el modelo para diferenciarlo del DVR de 4 canales
+                        titleSpecs: "UPS de 1000 VA / 600 W / Protección Contra Sobrecarga y Descarga / Entrada y Salida 120 VCA / 6 Tomas NEMA 5-15R (4 con Respaldo y 2 sin Respaldo).", 
+                        desc: "Cámaras PT y PTZ Análogas e IP.",
+                        costUSD: 53.59,
+                        features: ["Capacidad de 1000 VA / 600 W", "Batería de 12 V / 9 Ah", "6 salidas (4 con respaldo, 2 sin)","Voltaje de salida 102 - 132 V", "Tiempo de respaldo hasta 280 minutos", "Puerto USB para monitoreo local"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "UT-1000GU", // Cambié el modelo para diferenciarlo del DVR de 4 canales
+                        titleSpecs: "UPS de 1000 VA/500 W, Topología Línea Interactiva, Entrada 120 Vca NEMA 5-15P, y 8 Salidas NEMA 5-15R, Puerto USB, Con Regulador de Voltaje (AVR).", 
+                        desc: "Cámaras PT y PTZ Análogas e IP.",
+                        costUSD: 89.77,
+                        features: ["Topología Línea Interactiva con AVR integrado", "Rango AVR 86-148 VCA para estabilidad", "Tecnología GreenPower UPS™ para eficiencia energética","Compatibilidad con generadores para continuidad energética", "8 salidas NEMA 5-15R con protección integral", "Diseño compacto de torre para espacio reducido"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "EPU1200LCD", // Cambié el modelo para diferenciarlo del DVR de 4 canales
+                        titleSpecs: "UPS de 1200VA/720W / Topología Línea Interactiva / Entrada y Salida 120 Vca / Clavija NEMA 5-15P / 6 Tomas NEMA 5-15R.", 
+                        desc: "Cámaras PT y PTZ Análogas e IP.",
+                        costUSD: 93.31,
+                        features: ["Capacidad de 1200 VA / 720 W", "Topología interactiva con pantalla LCD", "Onda senoidal simulada, salida de 120 VCA ±5%","6 salidas NEMA 5-15R, 2 sin respaldo", "Baterías 2 x 12V/7Ah, reemplazo 2 piezas LK9.512", "AVR dinámico para estabilización de voltaje"],
+                        videoURL: ""   
+                    }
+                ]
+            },
+                ]
+            },                    
+    };
+    function filterActiveCategoryProducts() {
+        const query = document.getElementById('categorySearchInput').value.toLowerCase();
+        const cards = document.querySelectorAll('#productsContainer .product-card');
+        cards.forEach(card => {
+            if (card.innerText.toLowerCase().includes(query)) card.style.display = "flex";
+            else card.style.display = "none";
+        });
+    }
+
+    function initMenu() {
+        const menuContainer = document.getElementById('menuList');
+        menuContainer.innerHTML = '';
+        categoriesList.forEach(cat => {
+            const li = document.createElement('li');
+            const count = catalogData[cat.id] ? catalogData[cat.id].products.length : 0;
+            const a = document.createElement('a');
+            a.className = `category-menu-item ${cat.id === currentCategory ? 'active' : ''}`;
+            a.id = `menu-${cat.id}`;
+            a.onclick = () => selectCategory(cat.id);
+            a.innerHTML = `<span>${cat.name}</span> <span class="qty-badge">${count}</span>`;
+            li.appendChild(a);
+            menuContainer.appendChild(li);
+        });
+        renderProducts();
+    }
+
+    function selectCategory(catId) {
+        currentCategory = catId;
+        document.querySelectorAll('.category-menu-item').forEach(item => item.classList.remove('active'));
+        const activeItem = document.getElementById(`menu-${catId}`);
+        if (activeItem) activeItem.classList.add('active');
+        document.getElementById('categorySearchInput').value = '';
+        renderProducts();
+    }
+
+    function calculatePrices(costUSD) {
+        const rateInput = document.getElementById('exchangeRate');
+        const discountSelect = document.getElementById('discountSelect');
+        
+        currentRate = rateInput ? parseFloat(rateInput.value) || 17.60 : 17.60;
+        currentDiscount = discountSelect ? parseFloat(discountSelect.value) || 0 : 0;
+
+        const costoMXNSinIva = costUSD * currentRate;
+        const costoMXNConIva = costoMXNSinIva * 1.16;
+        const basePublico = costoMXNConIva * 1.65; // PRECIO DE LISTA ORIGINAL REFERENCE
+        
+        let precioFinalPublico = basePublico * (1 - currentDiscount);
+        
+        const precioMinimoPermitido = costoMXNConIva * 1.20;
+        if (precioFinalPublico < precioMinimoPermitido) precioFinalPublico = precioMinimoPermitido;
+        
+        const margenAsegurado = precioFinalPublico - costoMXNConIva;
+        
+        return { costoMXNConIva, basePublico, precioFinalPublico, margenAsegurado };
+    }
+
+    function renderProducts() {
+        const container = document.getElementById('productsContainer');
+        const titleEl = document.getElementById('categoryTitle');
+        const descEl = document.getElementById('categoryDesc');
+        container.innerHTML = '';
+
+        if (!catalogData[currentCategory] || catalogData[currentCategory].products.length === 0) {
+            const catName = categoriesList.find(c => c.id === currentCategory)?.name || currentCategory;
+            titleEl.innerText = `Línea: ${catName}`;
+            descEl.innerText = catalogData[currentCategory]?.desc || `Módulo asignado a la ingeniería de ${catName.toLowerCase()}.`;
+            container.innerHTML = `<p style="grid-column: 1/-1; color: #64748b; font-style: italic; padding: 30px 0;">Las soluciones de hardware se encuentran en proceso de indexación técnica.</p>`;
+            return;
+        }
+
+        const categoryInfo = catalogData[currentCategory];
+        titleEl.innerText = categoryInfo.title;
+        descEl.innerText = categoryInfo.desc;
+
+        categoryInfo.products.forEach(product => {
+            const calc = calculatePrices(product.costUSD);
+            const card = document.createElement('div');
+            card.className = 'product-card';
+
+            const safeModelName = product.model.replace(/\//g, "_");
+            const imgSrc = `${GITHUB_IMG_BASE}${safeModelName}.jpg`;
+
+            let videoButtonHTML = product.videoURL ? `<a href="${product.videoURL}" target="_blank" class="btn-video">🎬 Video</a>` : '';
+            let featuresHTML = product.features.map(feat => `<li>${feat}</li>`).join('');
+
+            // RENDER DE PRECIOS: Muestra precio de lista tachado si hay descuento activo en UI
+            let priceDisplayHTML = '';
+            if (currentDiscount > 0 && calc.basePublico > calc.precioFinalPublico) {
+                priceDisplayHTML = `
+                    <span style="text-decoration: line-through; color: #94a3b8; font-size: 1rem; display: block;">Precio Lista: $${calc.basePublico.toFixed(2)} MXN</span>
+                    <span class="final-price" style="color: #2563eb;">$${calc.precioFinalPublico.toFixed(2)} MXN <small style="font-size:0.8rem; background:#dbeafe; color:#1e40af; padding:2px 6px; border-radius:4px;">-${currentDiscount * 100}%</small></span>
+                `;
+            } else {
+                priceDisplayHTML = `<span class="final-price">$${calc.precioFinalPublico.toFixed(2)} MXN</span>`;
+            }
+
+            card.innerHTML = `
+                <div class="product-body">
+                    <div class="product-main-info">
+                        <div class="product-img-box"><img src="${imgSrc}" alt="${product.model}" onerror="this.src='byte.png'"></div>
+                        <div class="product-details">
+                            <div class="product-model">${product.model}</div>
+                            <h3 class="product-title-specs">${product.titleSpecs}</h3>
+                            <div class="product-price-list">
+                                ${priceDisplayHTML}
+                                <span class="usd-reference">Ref: $${product.costUSD.toFixed(2)} USD (c/IVA: $${calc.costoMXNConIva.toFixed(2)} MXN)</span>
+                            </div>
+                            <div class="margin-badge">Margen Real Asegurado: +$${calc.margenAsegurado.toFixed(2)} MXN</div>
+                        </div>
+                    </div>
+                    <p style="margin: 0; font-size: 0.9rem; color: #64748b;">${product.desc}</p>
+                    <ul class="product-features-list">${featuresHTML}</ul>
+                </div>
+                <div class="product-footer">
+                    <div class="product-actions">
+                        <button class="btn-prepare" onclick="prepareTechnicalSheet('${product.model}')">🖼️ Generar Tarjeta Comercial</button>
+                        ${videoButtonHTML}
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function updateAllPrices() { renderProducts(); }
+
+    /* ==========================================================================
+       RENDERING: Construcción de la Ficha Comercial con Lógica de Precios Tachados
+       ========================================================================== */
+    function prepareTechnicalSheet(modelCode) {
+        const product = catalogData[currentCategory].products.find(p => p.model === modelCode);
+        if (!product) return;
+
+        activeProductModel = product.model;
+        const calc = calculatePrices(product.costUSD);
+        const safeModelName = product.model.replace(/\//g, "_");
+        const productImgUrl = `${GITHUB_IMG_BASE}${safeModelName}.jpg`;
+
+        const canvas = document.getElementById('processingCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = 450;
+        canvas.height = 750;
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, 450, 750);
+
+        ctx.fillStyle = '#003366';
+        ctx.fillRect(0, 0, 450, 110);
+        
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 18px sans-serif';
+        ctx.fillText('SOLUCIONES DE INGENIERÍA PERIMETRAL', 25, 45);
+        
+        ctx.fillStyle = '#ff6600';
+        ctx.font = 'bold 13px sans-serif';
+        ctx.fillText('FICHA COMERCIAL DE HARDWARE - BYTECOMTEC', 25, 75);
+
+        ctx.fillStyle = '#003399';
+        ctx.font = 'bold 22px sans-serif';
+        ctx.fillText(`MODELO: ${product.model}`, 30, 155);
+
+        ctx.fillStyle = '#1e293b';
+        ctx.font = '15px sans-serif';
+        let nextY = wrapText(ctx, product.titleSpecs, 30, 190, 390, 22);
+
+        // EVALUACIÓN DE DESCUENTOS PARA EL RENDER EN CANVAS
+        let priceY = nextY + 35;
+        if (currentDiscount > 0 && calc.basePublico > calc.precioFinalPublico) {
+            // 1. Dibujar texto del "Precio de Lista original" en color gris neutro
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = 'bold 16px sans-serif';
+            let listPriceText = `Precio Lista: $${calc.basePublico.toFixed(2)} MXN`;
+            ctx.fillText(listPriceText, 30, priceY);
+
+            // 2. Trazar línea roja encima de dicho precio (Efecto Tachado)
+            let textWidth = ctx.measureText(listPriceText).width;
+            ctx.strokeStyle = '#d32f2f';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(30, priceY - 5);
+            ctx.lineTo(30 + textWidth, priceY - 5);
+            ctx.stroke();
+
+            // 3. Posicionar el nuevo precio rebajado abajo de forma dominante
+            priceY += 30;
+            ctx.fillStyle = '#2563eb'; // Azul promocional limpio
+            ctx.font = 'bold 25px sans-serif';
+            ctx.fillText(`Oferta Especial: $${calc.precioFinalPublico.toFixed(2)} MXN`, 30, priceY);
+        } else {
+            // Si no hay descuento, dibuja el precio normal directamente
+            ctx.fillStyle = '#003366';
+            ctx.font = 'bold 24px sans-serif';
+            ctx.fillText(`Precio Público: $${calc.precioFinalPublico.toFixed(2)} MXN`, 30, priceY);
+        }
+
+        let imgBoxY = priceY + 25;
+        let boxY = imgBoxY + 195; 
+
+        // Si el precio se desplazó hacia abajo por la oferta, reajustamos el límite si es necesario
+        if (boxY > 600) { boxY = 590; }
+
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(30, boxY, 390, 75);
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.strokeRect(30, boxY, 390, 75);
+        
+        ctx.fillStyle = '#d32f2f';
+        ctx.font = 'bold 14px sans-serif';
+        ctx.fillText('Cotización sujeta a diagnóstico en sitio.', 45, boxY + 30);
+        ctx.fillText('No incluye mano de obra por instalación.', 45, boxY + 54);
+
+        ctx.fillStyle = '#64748b';
+        ctx.font = 'italic 12px sans-serif';
+        ctx.fillText('* Vigencia ligada a existencia y tipo de cambio diario.', 30, 700);
+        ctx.fillText('Bytecomtec - Soporte Técnico Autorizado.', 30, 722);
+
+        renderCanvasImage(ctx, productImgUrl, 135, imgBoxY, 180, 180, canvas);
+    }
+
+    function renderCanvasImage(ctx, src, x, y, width, height, canvas) {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = src;
+
+        img.onload = function() {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(x, y, width, height);
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.strokeRect(x, y, width, height);
+            
+            const maxDim = width - 20;
+            let w = img.width;
+            let h = img.height;
+            if (w > h) {
+                h = (h * maxDim) / w;
+                w = maxDim;
+            } else {
+                w = (w * maxDim) / h;
+                h = maxDim;
+            }
+            const xOffset = x + (width - w) / 2;
+            const yOffset = y + (height - h) / 2;
+            
+            ctx.drawImage(img, xOffset, yOffset, w, h);
+            openModalWithCanvasData(canvas);
+        };
+        img.onerror = function() {
+            ctx.fillStyle = '#f1f5f9';
+            ctx.fillRect(x, y, width, height);
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.strokeRect(x, y, width, height);
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = 'bold 13px sans-serif';
+            ctx.fillText('[Imagen]', x + (width/2) - 25, y + (height/2) + 5);
+            openModalWithCanvasData(canvas);
+        };
+    }
+
+    function wrapText(context, text, x, y, maxWidth, lineHeight) {
+        const words = text.split(' ');
+        let line = '';
+        let currentY = y;
+        for (let n = 0; n < words.length; n++) {
+            let testLine = line + words[n] + ' ';
+            if (context.measureText(testLine).width > maxWidth && n > 0) {
+                context.fillText(line, x, currentY);
+                line = words[n] + ' ';
+                currentY += lineHeight;
+            } else {
+                line = testLine;
+            }
+        }
+        context.fillText(line, x, currentY);
+        return currentY;
+    }
+
+    function openModalWithCanvasData(canvas) {
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalTargetImg');
+        const btnAction = document.getElementById('btnClipboardAction');
+        
+        if (modal && modalImg) {
+            modalImg.src = canvas.toDataURL('image/png');
+            modal.style.display = 'flex';
+            
+            if (btnAction) {
+                if (navigator.canShare && navigator.share) {
+                    btnAction.innerText = '🚀 Compartir Ficha por WhatsApp';
+                } else {
+                    btnAction.innerText = '📋 Copiar Imagen al Portapapeles';
+                }
+                btnAction.className = 'btn-copy-clipboard';
+            }
+        }
+    }
+
+    function shareOrCopyCanvas() {
+        const canvas = document.getElementById('processingCanvas');
+        const btnAction = document.getElementById('btnClipboardAction');
+        const cleanFileName = `Ficha_${activeProductModel.replace(/[^a-zA-Z0-9]/g, '_')}.png`;
+
+        canvas.toBlob(async function(blob) {
+            if (!blob) return;
+            if (navigator.canShare && navigator.share) {
+                try {
+                    const file = new File([blob], cleanFileName, { type: 'image/png' });
+                    await navigator.share({ files: [file] });
+                } catch (err) {
+                    console.log("Compartición omitida.");
+                }
+            } else {
+                try {
+                    await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+                    if (btnAction) {
+                        btnAction.className = 'btn-copy-clipboard success';
+                        btnAction.innerText = '✅ ¡Ficha Copiada! Pégala en tu chat (Ctrl+V)';
+                    }
+                } catch (err) {
+                    alert("Mantén presionada la imagen para guardarla.");
+                }
+            }
+        }, 'image/png');
+    }
+
+    function closeLightbox() {
+        document.getElementById('imageModal').style.display = 'none';
+    }
+
+    window.onload = initMenu;
+</script>
+</body>
+</html>
