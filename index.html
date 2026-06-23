@@ -265,7 +265,7 @@
     ];
 
     const catalogData = {
-            nvr: {
+            panel: {
                 title: "Grabadores de Red (NVR)",
                 desc: "Soluciones autónomas de grabación IP nativa con gestión remota y switches integrados.",
                 products: [
@@ -277,22 +277,7 @@
                         features: ["Codificación H.265+/H.265/H.264+/H.264", "Almacenamiento 1 disco hasta 6 TB", "Throughput entrada 50 Mbps, salida 40 Mbps", "Reproducción sincrónica 4 canales Full HD", "2 antenas Wi-Fi MIMO 2.4 GHz"],
                         videoURL: "https://bytecomtec.github.io/videos_videovigilancia/videovigilancia.mp4"
                    },
-                   { 
-                        model: "DS-7604NI-Q1/4P(D)", // Cambié el modelo para diferenciarlo del DVR
-                        titleSpecs: "NVR 8 Megapixel (4K) (Compatible con Cámaras ACUSENSE) / 4 canales IP / 4 Puertos PoE+ / 1 Bahía de Disco Duro / Salida de Vídeo en 4K / 300 Metros PoE Modo Extendido", 
-                        desc: "Grabador de red eficiente diseñado para gestionar cámaras IP de alta definición continua.",
-                        costUSD: 79.25,
-                        features: ["Compresión H.265+/H.265/H.264+/H.264", "4 puertos PoE+ con 50W total", "Soporta disco duro de hasta 8TB", "Acceso remoto desde dispositivos móviles", "Salida de video 4K en HDMI"],
-                        videoURL: ""     
-                    },
-                    { 
-                        model: "DS-7604NXI-K1/4P(E)", // Cambié el modelo para diferenciarlo del NVR de 4 canales
-                        titleSpecs: "[Acusearch] NVR 12 Megapíxel (4K) / 4 canales IP / 4 Puertos PoE+ / Reconocimiento Facial / AcuSense (Evita Falsas Alarmas) / 1 Bahías de Disco Duro / HDMI en 4K / 300 Metros PoE Modo Extendido", 
-                        desc: "Grabador IP autónomo provisto de puertos PoE nativos para energizar cámaras de forma directa.",
-                        costUSD: 117.40,
-                        features: ["Compresión H.265+/H.265/H.264+/H.264 para eficiencia", "4 puertos PoE+ con 50W potencia total", "Acceso remoto vía Hik-Connect y aplicaciones móviles", "Reconocimiento facial hasta 50,000 rostros en 4 canales", "Modo PoE extendido hasta 300 metros de distancia"],
-                        videoURL: ""       
-                    },
+
                     { 
                         model: "CS-X5S/8W", // Cambié el modelo para diferenciarlo del DVR
                         titleSpecs: "NVR Inalámbrico (WiFi) de 8 Canales IP / Admite Cámaras hasta 5 Megapixel (3K) / Salidas HDMI y VGA / H.265 / Almacenamiento Expandible hasta 8 TB", 
@@ -376,7 +361,43 @@
                 ]
             },
 
-            switch_poe: {
+            repetidor: {
+                title: "Switches POE",
+                desc: "Catálogo completo de soluciones Switches POE, NO-POE.",
+                products: [
+                    { 
+                        model: "DS-3E1505P-EI/M", 
+                        titleSpecs: "Switch Gigabit PoE+ / Monitoreable / 4 Puertos 1000 Mbps PoE+ / 1 Puerto 1000 Mbps Uplink / Configuración Nube Hik-PartnerPro / Modo Extendido hasta 300 Metros / 45 Watts", 
+                        desc: "Grabador compacto ideal para el resguardo eficiente de perímetros pequeños con optimización extrema de almacenamiento.",
+                        costUSD: 30.00,
+                        features: ["Switch 4 puertos PoE+ 1000 Mbps", "Puerto Uplink 1000 Mbps dedicado", "Monitoreo en tiempo real de tráfico", "Modo Extendido hasta 300 metros", "45W PoE+ con administración inteligente", "Configuración vía Hik-PartnerPro en la nube"],
+                        videoURL: ""   
+                    },
+                    { 
+                        model: "TL-SG1005P", 
+                        titleSpecs: "Switch Escritorio No Administrable de 5 puertos 10/100/1000 Mbps / Con 4 puertos PoE 802.3af/at de hasta 65 W / PoE Extendido hasta 250 metros", 
+                        desc: "Grabador balanceado analítico para entornos residenciales y pequeños comercios que exigen nitidez estructural superior.",
+                        costUSD: 29.59,
+                        features: ["Switch no administrable de 5 puertos Gigabit", "4 puertos PoE 802.3af/at con presupuesto 65W", "PoE extendido hasta 250 metros en puertos 1-2", "Diseño compacto de 99.8 x 98 x 25 mm", "Rendimiento de 10 Gbps y 7.44 Mpps de reenvío", "Soporta Jumbo Frames de hasta 16 KB"],
+                        videoURL: ""   
+                    },
+
+
+
+
+
+                    { 
+                        model: "WI-PS518G", 
+                        titleSpecs: "Switch PoE (802.3af/at/bt) / No administrable de largo alcance / Hasta 250m / 16 x 10/100Mbps (PoE) + 2 x 100/1000Mbps + 1 x SFP / 200 W", 
+                        desc: "Solución analítica avanzada basada en algoritmos profundos para mitigar las falsas alarmas de entorno.",
+                        costUSD: 116.73,
+                        features: ["Extensión de red patentada hasta 250 metros", "Detección y reinicio automático de cámaras IP", "Presupuesto PoE de 200W para múltiples dispositivos", "Protección de 6kV contra rayos y ESD", "Plug and Play sin configuración requerida", "16 puertos PoE con soporte 802.3af/at/bt"],
+                        videoURL: ""   
+                    }
+                ]
+            },
+
+            accesorios: {
                 title: "Switches POE",
                 desc: "Catálogo completo de soluciones Switches POE, NO-POE.",
                 products: [
@@ -413,7 +434,7 @@
             },
 
 
-            energia: {
+            baterias: {
                 title: "Fuentes de energía",
                 desc: "Equipos de alimentación CCTV",
                 products: [
@@ -495,62 +516,7 @@
                         features: ["Capacidad de 600 VA / 360 W", "Topología interactiva con pantalla LCD", "Regulador automático de voltaje en boost y buck","4 salidas NEMA 5-15R, 1 sin respaldo", "Batería reemplazable 1 x 12V/7Ah, modelo LK9.512", "Tiempo de respaldo ajustado por carga conectada"],
                         videoURL: ""   
                     },
-                    { 
-                        model: "AVRG750LCD", // Cambié el modelo para diferenciarlo del DVR de 4 canales
-                        titleSpecs: "UPS de 750 VA/450 W, Topología Línea Interactiva, Entrada 120 Vca NEMA 5-15P, Tipo Gabinete Compacto, Con 12 Tomas NEMA 5-15R.", 
-                        desc: "Cámaras PT y PTZ Análogas e IP.",
-                        costUSD: 135.81,
-                        features: ["Topología interactiva de línea con AVR integrado", "Compatible con Energy Star para ahorro energético significativo", "Puerto RJ11/RJ45 para protección de datos","Pantalla LCD para monitoreo del estado del UPS", "Batería reemplazable por usuario y puerto USB de carga", "12 tomas NEMA 5-15R con 6 con respaldo de batería"],
-                        videoURL: ""   
-                    },
-                    { 
-                        model: "OM750ATLCD", // Cambié el modelo para diferenciarlo del DVR de 4 canales
-                        titleSpecs: "UPS de 750 VA/300 W, Topología Línea Interactiva, Entrada 120 Vca NEMA 5-15P, y 6 Salidas NEMA 5-15R, Con Regulador de Voltaje (AVR).", 
-                        desc: "Cámaras PT y PTZ Análogas e IP.",
-                        costUSD: 80.56,
-                        features: ["Topología interactiva de línea para mayor protección", "Salida de onda sinusoidal simulada para equipos sensibles", "Regulación automática de voltaje (AVR) sin uso de batería","6 salidas NEMA 5-15R con protección y 3 con respaldo", "Supresión de picos de 245 Joules", "Pantalla LCD para monitoreo en tiempo real"],
-                        videoURL: ""   
-                    },
-                    { 
-                        model: "EPU850L", // Cambié el modelo para diferenciarlo del DVR de 4 canales
-                        titleSpecs: "UPS de 850VA/510W / Topología Línea Interactiva / Entrada y Salida 120 Vca / Regulador de Voltaje AVR 80-150 Vca / Clavija NEMA 5-15P / 4 Tomas NEMA 5-15R /Sin RJ11 ni RJ45.", 
-                        desc: "Cámaras PT y PTZ Análogas e IP.",
-                        costUSD: 45.12,
-                        features: ["Capacidad 850 VA / 510 W para pequeñas empresas", "Topología línea interactiva con AVR 80-150 VCA", "Regulador automático de voltaje boost y buck","4 salidas NEMA 5-15R con respaldo energético", "Batería 1 x 12V/8Ah, reemplazo 1 pieza LK9.512", "Diseño compacto sin protección RJ11/RJ45"],
-                        videoURL: ""   
-                    },
-                    { 
-                        model: "EPU850LCD", // Cambié el modelo para diferenciarlo del DVR de 4 canales
-                        titleSpecs: "UPS de 850VA/510W / Topología Línea Interactiva / Entrada y Salida 120 Vca / Clavija NEMA 5-15P / 6 Tomas NEMA 5-15R / Sin RJ11 ni RJ45.", 
-                        desc: "Cámaras PT y PTZ Análogas e IP.",
-                        costUSD: 52.08,
-                        features: ["Capacidad 850 VA / 510 W para equipos esenciales", "Topología línea interactiva con protección contra sobrevoltajes y picos", "Salida 120 VCA ±5% con regulación automática","6 Tomas NEMA 5-15R, 2 con protección exclusiva", "Batería 1 x 12V/8Ah, reemplazo 1 pieza LK9.512", "Tiempo de respaldo variable según carga: hasta 40 minutos"],
-                        videoURL: ""   
-                    },
-                    { 
-                        model: "OM900ATLCD", // Cambié el modelo para diferenciarlo del DVR de 4 canales
-                        titleSpecs: "UPS de 900 VA/420 W, Topología Línea Interactiva, Entrada 120 Vca NEMA 5-15P, y 6 Salidas NEMA 5-15R, Con Regulador de Voltaje (AVR).", 
-                        desc: "Cámaras PT y PTZ Análogas e IP.",
-                        costUSD: 102.30,
-                        features: ["Topología interactiva de línea con AVR integrado", "Capacidad de 900 VA / 420 W", "6 salidas NEMA 5-15R con protección integral","Regulación automática de voltaje (AVR) sin batería", "Supresión de picos de 245 Joules", "Pantalla LCD y puerto USB para monitoreo"],
-                        videoURL: ""   
-                    },
-                    { 
-                        model: "DS-UPS1000-X", // Cambié el modelo para diferenciarlo del DVR de 4 canales
-                        titleSpecs: "UPS de 1000 VA / 600 W / Protección Contra Sobrecarga y Descarga / Entrada y Salida 120 VCA / 6 Tomas NEMA 5-15R (4 con Respaldo y 2 sin Respaldo).", 
-                        desc: "Cámaras PT y PTZ Análogas e IP.",
-                        costUSD: 53.59,
-                        features: ["Capacidad de 1000 VA / 600 W", "Batería de 12 V / 9 Ah", "6 salidas (4 con respaldo, 2 sin)","Voltaje de salida 102 - 132 V", "Tiempo de respaldo hasta 280 minutos", "Puerto USB para monitoreo local"],
-                        videoURL: ""   
-                    },
-                    { 
-                        model: "UT-1000GU", // Cambié el modelo para diferenciarlo del DVR de 4 canales
-                        titleSpecs: "UPS de 1000 VA/500 W, Topología Línea Interactiva, Entrada 120 Vca NEMA 5-15P, y 8 Salidas NEMA 5-15R, Puerto USB, Con Regulador de Voltaje (AVR).", 
-                        desc: "Cámaras PT y PTZ Análogas e IP.",
-                        costUSD: 89.77,
-                        features: ["Topología Línea Interactiva con AVR integrado", "Rango AVR 86-148 VCA para estabilidad", "Tecnología GreenPower UPS™ para eficiencia energética","Compatibilidad con generadores para continuidad energética", "8 salidas NEMA 5-15R con protección integral", "Diseño compacto de torre para espacio reducido"],
-                        videoURL: ""   
-                    },
+
                     { 
                         model: "EPU1200LCD", // Cambié el modelo para diferenciarlo del DVR de 4 canales
                         titleSpecs: "UPS de 1200VA/720W / Topología Línea Interactiva / Entrada y Salida 120 Vca / Clavija NEMA 5-15P / 6 Tomas NEMA 5-15R.", 
@@ -561,8 +527,7 @@
                     }
                 ]
             },
-                ]
-            },                    
+                  
     };
     function filterActiveCategoryProducts() {
         const query = document.getElementById('categorySearchInput').value.toLowerCase();
