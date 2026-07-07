@@ -132,12 +132,12 @@
         .product-features-list li::before { content: "✓"; position: absolute; left: -18px; color: #10b981; font-weight: bold; }
 
         .product-footer { border-top: 1px solid #f1f5f9; padding-top: 15px; }
-        .product-actions { display: flex; gap: 10px; }
+        .product-actions { display: flex; gap: 8px; flex-wrap: wrap; }
         
         .btn-prepare {
             background-color: var(--primary-color); color: var(--white); border: none; border-radius: 4px;
             padding: 11px 14px; font-size: 0.9rem; font-weight: 600; cursor: pointer; flex: 2;
-            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 140px;
         }
         .btn-prepare:hover { background-color: #002244; }
 
@@ -145,11 +145,19 @@
             background-color: transparent; color: var(--accent-color); border: 1px solid var(--accent-color);
             border-radius: 4px; padding: 11px 14px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
             flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none;
-            transition: all 0.2s; box-sizing: border-box;
+            transition: all 0.2s; box-sizing: border-box; min-width: 90px;
         }
         .btn-video:hover { background-color: var(--accent-color); color: var(--white); }
 
-        /* ==========================================================================
+        .btn-syscom {
+            background-color: transparent; color: #475569; border: 1px solid #cbd5e1;
+            border-radius: 4px; padding: 11px 14px; font-size: 0.9rem; font-weight: 600;
+            flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none;
+            transition: all 0.2s; box-sizing: border-box; min-width: 100px;
+        }
+        .btn-syscom:hover { background-color: #f1f5f9; color: var(--primary-color); border-color: #94a3b8; }
+
+           /* ==========================================================================
            MODAL DE PREVISUALIZACIÓN DE IMAGEN VERTICAL EN SMARTPHONES
            ========================================================================== */
         .custom-modal {
@@ -186,7 +194,7 @@
 <body>
 
     <header class="navbar">
-        <h1>Bytecomtec - Centro de Control de Margen</h1>
+        <h1>Gama de sensores y detectores AXPRO</h1>
         
         <div class="config-panel">
             <div class="currency-controller">
@@ -251,10 +259,10 @@
 <script>
     let currentRate = 17.50;
     let currentDiscount = 0;
-    let currentCategory = "panel";
+    let currentCategory = "dvr";
     let activeProductModel = "";
 
-    const GITHUB_IMG_BASE = "https://bytecomtec.github.io/marketing_alarmas/";
+    const GITHUB_IMG_BASE = "https://bytecomtec.github.io/marketing_videovigilancia/";
 
     const categoriesList = [
         { id: "panel", name: "Panel Alarma" },
@@ -627,6 +635,7 @@
             },
 
     };
+
     function filterActiveCategoryProducts() {
         const query = document.getElementById('categorySearchInput').value.toLowerCase();
         const cards = document.querySelectorAll('#productsContainer .product-card');
@@ -710,6 +719,11 @@
             const imgSrc = `${GITHUB_IMG_BASE}${safeModelName}.jpg`;
 
             let videoButtonHTML = product.videoURL ? `<a href="${product.videoURL}" target="_blank" class="btn-video">🎬 Video</a>` : '';
+            
+            // CORRECCIÓN AQUÍ: Si el link específico no existe, genera el buscador por modelo de SYSCOM
+            let targetSyscomURL = product.syscomURL ? product.syscomURL : `https://www.syscom.mx/principal/resultado?search=${encodeURIComponent(product.model)}`;
+            let syscomButtonHTML = `<a href="${targetSyscomURL}" target="_blank" class="btn-syscom"><i class="fas fa-external-link-alt"></i> SYSCOM</a>`;
+            
             let featuresHTML = product.features.map(feat => `<li>${feat}</li>`).join('');
 
             // RENDER DE PRECIOS: Muestra precio de lista tachado si hay descuento activo en UI
@@ -742,8 +756,9 @@
                 </div>
                 <div class="product-footer">
                     <div class="product-actions">
-                        <button class="btn-prepare" onclick="prepareTechnicalSheet('${product.model}')">🖼️ Generar Tarjeta Comercial</button>
+                        <button class="btn-prepare" onclick="prepareTechnicalSheet('${product.model}')">🖼️ Tarjeta Comercial</button>
                         ${videoButtonHTML}
+                        ${syscomButtonHTML}
                     </div>
                 </div>
             `;
@@ -753,7 +768,7 @@
 
     function updateAllPrices() { renderProducts(); }
 
-    /* ==========================================================================
+        /* ==========================================================================
        RENDERING: Construcción de la Ficha Comercial con Lógica de Precios Tachados
        ========================================================================== */
     function prepareTechnicalSheet(modelCode) {
@@ -815,7 +830,7 @@
             priceY += 30;
             ctx.fillStyle = '#2563eb'; // Azul promocional limpio
             ctx.font = 'bold 25px sans-serif';
-            ctx.fillText(`Oferta Especial: $${calc.precioFinalPublico.toFixed(2)} MXN`, 30, priceY);
+            ctx.fillText(`Especial: $${calc.precioFinalPublico.toFixed(2)} MXN`, 30, priceY);
         } else {
             // Si no hay descuento, dibuja el precio normal directamente
             ctx.fillStyle = '#003366';
@@ -846,7 +861,6 @@
 
         renderCanvasImage(ctx, productImgUrl, 135, imgBoxY, 180, 180, canvas);
     }
-
     function renderCanvasImage(ctx, src, x, y, width, height, canvas) {
         const img = new Image();
         img.crossOrigin = "anonymous";
@@ -885,7 +899,6 @@
             openModalWithCanvasData(canvas);
         };
     }
-
     function wrapText(context, text, x, y, maxWidth, lineHeight) {
         const words = text.split(' ');
         let line = '';
@@ -903,7 +916,6 @@
         context.fillText(line, x, currentY);
         return currentY;
     }
-
     function openModalWithCanvasData(canvas) {
         const modal = document.getElementById('imageModal');
         const modalImg = document.getElementById('modalTargetImg');
@@ -923,7 +935,7 @@
             }
         }
     }
-
+    
     function shareOrCopyCanvas() {
         const canvas = document.getElementById('processingCanvas');
         const btnAction = document.getElementById('btnClipboardAction');
@@ -951,7 +963,6 @@
             }
         }, 'image/png');
     }
-
     function closeLightbox() {
         document.getElementById('imageModal').style.display = 'none';
     }
